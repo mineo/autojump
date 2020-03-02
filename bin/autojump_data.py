@@ -6,7 +6,7 @@ import os
 import shutil
 import sys
 from codecs import open
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from tempfile import NamedTemporaryFile
 from time import time
 
@@ -78,12 +78,14 @@ def load(config):
                 'r', encoding='utf-8',
                 errors='replace',
         ) as f:
-            return dict(
-                imap(
-                    tupleize,
-                    ifilter(correct_length, imap(parse, f)),
-                ),
-            )
+            tuples = map(
+                tupleize,
+                ifilter(correct_length, imap(parse, f)),)
+
+        data = defaultdict(lambda: 0)
+        for (k, v) in tuples:
+            data[k] += v
+        return dict(data)
     except (IOError, EOFError):
         return load_backup(config)
 
